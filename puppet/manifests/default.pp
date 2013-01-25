@@ -97,18 +97,6 @@ class install_core_packages {
 }
 class { 'install_core_packages': }
 
-class install_ruby {
-  package { 'ruby1.9.3':
-    ensure => installed
-  }
-
-  exec { '/usr/bin/gem install bundler --no-rdoc --no-ri':
-    unless  => '/usr/bin/gem list | grep bundler',
-    user    => 'root',
-    require => Package['ruby1.9.3']
-  }
-}
-class { 'install_ruby': }
 
 class install_nokogiri_dependencies {
   package { ['libxml2', 'libxml2-dev', 'libxslt1-dev']:
@@ -125,3 +113,13 @@ class install_execjs_runtime {
 class { 'install_execjs_runtime': }
 
 class { 'memcached': }
+
+include rvm
+## So we don't need to use sudo with RVM
+rvm::system_user { vagrant: ;}
+
+rvm_system_ruby {
+  'ruby-1.8.7-p302':
+    ensure => 'present',
+    default_use => true;
+}
