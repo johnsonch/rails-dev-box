@@ -1,16 +1,22 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 Vagrant.configure('2') do |config|
-  config.vm.box      = 'precise32'
-  config.vm.box_url  = 'http://files.vagrantup.com/precise32.box'
+  config.vm.box      = 'hashicorp/precise64'
   config.vm.hostname = 'rails-dev-box'
 
-  config.vm.provider 'vmware_fusion' do |v, override|
-    override.vm.box     = 'precise64'
-    override.vm.box_url = 'http://files.vagrantup.com/precise64_vmware.box'
+
+  config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id,
+                 "--name", 'rails-dev-box',
+                 "--memory", "512",
+                 "--nictype1", "Am79C973",
+                 "--nictype2", "Am79C973",
+                 "--natdnshostresolver1", "on"]
   end
 
   config.vm.network :forwarded_port, guest: 3000, host: 3000
+
+  config.vm.synced_folder "../", "/home/vagrant/development", :nfs => true
 
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = 'puppet/manifests'
